@@ -12,7 +12,7 @@ services:
       - internal_network
 
     volumes:
-      - ./specification.yml:/swagger-ui/specification.yml
+      - ./docs/specification.yml:/swagger-ui/specification.yml
   open-dpp-api:
     build: .
     container_name: open_dpp_api
