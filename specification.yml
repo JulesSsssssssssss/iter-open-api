@@ -24,6 +24,22 @@ paths:
           content:
             application/json:
               schema:
+                $ref: '#/components/schemas/PassportList'
+  /passports/{gtin}:
+    get:
+      summary: Returns a single digital product passport.
+      description: Optional extended description in CommonMark or HTML.
+      parameters:
+        - in: path
+          name: gtin
+          required: true
+          schema: { type: string, example: '068780000108' }
+      responses:
+        '200': # status code
+          description: Data du passeport numérique produit
+          content:
+            application/json:
+              schema:
                 $ref: '#/components/schemas/Passport'
 
 components:
@@ -31,7 +47,19 @@ components:
     Passport:
       type: 'object'
       properties:
-        PropertyName1:
-          type: 'string'
-        PropertyName2:
-          type: 'integer'
+        data:
+          type: 'object'
+          properties:
+            gtin: { type: string, example: '068780000108' }
+        context:
+          type: 'object'
+
+    PassportList:
+      type: 'object'
+      properties:
+        data:
+          type: 'array'
+          items:
+            $ref: ''
+        context:
+          type: 'object'
