@@ -1,0 +1,94 @@
+{
+	"passportId": "https://verisav.fr/data/dpp-examples/patagonia-jacket#passport",
+	"product": {
+		"name": "Patagonia Better Sweater Jacket",
+		"title": {
+			"en": "Patagonia Better Sweater Jacket - Digital Product Passport",
+			"fr": "Veste Patagonia Better Sweater - Passeport Produit Numérique"
+		},
+		"description": {
+			"en": "Patagonia Better Sweater fleece jacket made from recycled polyester",
+			"fr": "Veste en polaire Patagonia Better Sweater en polyester recyclé"
+		},
+		"brand": "Patagonia",
+		"sku": "25515-MEN-M",
+		"gtin": "884993074531",
+		"digitalLink": "https://www.patagonia.com/01/884993074531/21/PAT-2025-BSW-1234",
+		"granularityLevel": "serial",
+		"serialNumber": "PAT-2025-BSW-1234",
+		"color": "Black",
+		"size": "M"
+	},
+	"manufacturing": {
+		"date": "2025-08-20",
+		"location": "Ventura, California, USA",
+		"manufacturer": {
+			"name": "Patagonia, Inc.",
+			"url": "https://www.patagonia.com",
+			"gln": "8849930745310",
+			"address": {
+				"locality": "Ventura",
+				"region": "California",
+				"country": "US"
+			}
+		}
+	},
+	"commercial": {
+		"retailer": {
+			"name": "Patagonia Store Paris",
+			"url": "https://www.patagonia.com/stores/paris",
+			"gln": "3012345678902"
+		},
+		"purchaseDate": "2025-10-12",
+		"purchasePrice": {
+			"amount": 129.0,
+			"currency": "EUR"
+		},
+		"warranty": {
+			"type": "manufacturer",
+			"status": "active",
+			"startDate": "2025-10-12",
+			"endDate": "2026-10-12",
+			"durationMonths": 12
+		}
+	},
+	"sustainability": {
+		"recyclingInstructions": {
+			"en": "Product made from 100% recycled polyester. Can be recycled through Patagonia Worn Wear program or textile recycling facilities.",
+			"fr": "Produit fabriqué à partir de 100% polyester recyclé. Peut être recyclé via le programme Patagonia Worn Wear ou les installations de recyclage textile.",
+			"url": "https://www.patagonia.com/worn-wear/"
+		}
+	},
+	"care": {
+		"document": {
+			"name": {
+				"en": "Care Instructions",
+				"fr": "Instructions d'entretien"
+			},
+			"description": {
+				"en": "Washing and care instructions for the Better Sweater jacket",
+				"fr": "Instructions de lavage et d'entretien pour la veste Better Sweater"
+			},
+			"url": "https://www.patagonia.com/care-instructions/better-sweater"
+		}
+	},
+	"status": {
+		"productStatus": "sous_garantie",
+		"date": "2025-10-12"
+	},
+	"lifecycle": {
+		"stageName": "usage",
+		"stageDate": "2025-10-12"
+	},
+	"consumer": {
+		"name": "Sophie Leroy",
+		"email": "sophie.leroy@example.com"
+	},
+	"links": {
+		"self": "/api/dpp/patagonia-jacket",
+		"jsonld": "/api/dpp/patagonia-jacket?format=jsonld",
+		"ttl": "/api/dpp/patagonia-jacket?format=ttl",
+		"public": "/api/dpp/patagonia-jacket?scope=public",
+		"oauth": "https://api.verisav.fr/oauth/token"
+	}
+}
