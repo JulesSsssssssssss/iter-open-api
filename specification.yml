@@ -3,63 +3,822 @@ info:
   title: ITER open data
   description: Documentation relative to the open part of ITER's digital product passport APIs.
   version: 0.0.1
-
 servers:
   - url: http://api.example.com/v1
     description: Current production server for ITER open dpp api
-
 paths:
-  /passports:
+  /api/dpp/{gtin}:
     get:
-      summary: Returns a list of digital product passports.
-      description: Optional extended description in CommonMark or HTML.
-      parameters:
-        - in: query
-          name: sort
-          required: false
-          schema: { type: string, default: 'ID' }
-      responses:
-        '200': # status code
-          description: Liste de passports paginée
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/PassportList'
-  /passports/{gtin}:
-    get:
-      summary: Returns a single digital product passport.
-      description: Optional extended description in CommonMark or HTML.
+      summary: 'Get passport'
+      description: 'Retrieve a passport'
       parameters:
         - in: path
           name: gtin
           required: true
-          schema: { type: string, example: '068780000108' }
+          schema: { type: string, example: '884993074531' }
+        - in: query
+          name: serial
+          required: false
+          schema: { type: string, example: 'PAT-2025-BSW-1234' }
       responses:
-        '200': # status code
-          description: Data du passeport numérique produit
+        200:
+          description: 'Successful response'
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Passport'
-
-components:
-  schemas:
-    Passport:
-      type: 'object'
-      properties:
-        data:
-          type: 'object'
-          properties:
-            gtin: { type: string, example: '068780000108' }
-        context:
-          type: 'object'
-
-    PassportList:
-      type: 'object'
-      properties:
-        data:
-          type: 'array'
-          items:
-            $ref: ''
-        context:
-          type: 'object'
+                type: 'object'
+                properties:
+                  passportId:
+                    type: 'string'
+                  product:
+                    type: 'object'
+                    properties:
+                      name:
+                        type: 'string'
+                      title:
+                        type: 'object'
+                        properties:
+                          en:
+                            type: 'string'
+                          fr:
+                            type: 'string'
+                        required:
+                          - 'en'
+                          - 'fr'
+                      description:
+                        type: 'object'
+                        properties:
+                          en:
+                            type: 'string'
+                          fr:
+                            type: 'string'
+                        required:
+                          - 'en'
+                          - 'fr'
+                      brand:
+                        type: 'string'
+                      sku:
+                        type: 'string'
+                      gtin:
+                        type: 'string'
+                      digitalLink:
+                        type: 'string'
+                      granularityLevel:
+                        type: 'string'
+                      serialNumber:
+                        type: 'string'
+                      color:
+                        type: 'string'
+                      size:
+                        type: 'string'
+                    required:
+                      - 'name'
+                      - 'title'
+                      - 'description'
+                      - 'brand'
+                      - 'sku'
+                      - 'gtin'
+                      - 'digitalLink'
+                      - 'granularityLevel'
+                      - 'serialNumber'
+                      - 'color'
+                      - 'size'
+                  manufacturing:
+                    type: 'object'
+                    properties:
+                      date:
+                        type: 'string'
+                      location:
+                        type: 'string'
+                      manufacturer:
+                        type: 'object'
+                        properties:
+                          name:
+                            type: 'string'
+                          url:
+                            type: 'string'
+                          gln:
+                            type: 'string'
+                          address:
+                            type: 'object'
+                            properties:
+                              locality:
+                                type: 'string'
+                              region:
+                                type: 'string'
+                              country:
+                                type: 'string'
+                            required:
+                              - 'locality'
+                              - 'region'
+                              - 'country'
+                        required:
+                          - 'name'
+                          - 'url'
+                          - 'gln'
+                          - 'address'
+                    required:
+                      - 'date'
+                      - 'location'
+                      - 'manufacturer'
+                  commercial:
+                    type: 'object'
+                    properties:
+                      retailer:
+                        type: 'object'
+                        properties:
+                          name:
+                            type: 'string'
+                          url:
+                            type: 'string'
+                          gln:
+                            type: 'string'
+                        required:
+                          - 'name'
+                          - 'url'
+                          - 'gln'
+                      purchaseDate:
+                        type: 'string'
+                      purchasePrice:
+                        type: 'object'
+                        properties:
+                          amount:
+                            type: 'integer'
+                          currency:
+                            type: 'string'
+                        required:
+                          - 'amount'
+                          - 'currency'
+                      warranty:
+                        type: 'object'
+                        properties:
+                          type:
+                            type: 'string'
+                          status:
+                            type: 'string'
+                          startDate:
+                            type: 'string'
+                          endDate:
+                            type: 'string'
+                          durationMonths:
+                            type: 'integer'
+                        required:
+                          - 'type'
+                          - 'status'
+                          - 'startDate'
+                          - 'endDate'
+                          - 'durationMonths'
+                    required:
+                      - 'retailer'
+                      - 'purchaseDate'
+                      - 'purchasePrice'
+                      - 'warranty'
+                  sustainability:
+                    type: 'object'
+                    properties:
+                      recyclingInstructions:
+                        type: 'object'
+                        properties:
+                          en:
+                            type: 'string'
+                          fr:
+                            type: 'string'
+                          url:
+                            type: 'string'
+                        required:
+                          - 'en'
+                          - 'fr'
+                          - 'url'
+                    required:
+                      - 'recyclingInstructions'
+                  care:
+                    type: 'object'
+                    properties:
+                      document:
+                        type: 'object'
+                        properties:
+                          name:
+                            type: 'object'
+                            properties:
+                              en:
+                                type: 'string'
+                              fr:
+                                type: 'string'
+                            required:
+                              - 'en'
+                              - 'fr'
+                          description:
+                            type: 'object'
+                            properties:
+                              en:
+                                type: 'string'
+                              fr:
+                                type: 'string'
+                            required:
+                              - 'en'
+                              - 'fr'
+                          url:
+                            type: 'string'
+                        required:
+                          - 'name'
+                          - 'description'
+                          - 'url'
+                    required:
+                      - 'document'
+                  status:
+                    type: 'object'
+                    properties:
+                      productStatus:
+                        type: 'string'
+                      date:
+                        type: 'string'
+                    required:
+                      - 'productStatus'
+                      - 'date'
+                  lifecycle:
+                    type: 'object'
+                    properties:
+                      stageName:
+                        type: 'string'
+                      stageDate:
+                        type: 'string'
+                    required:
+                      - 'stageName'
+                      - 'stageDate'
+                  consumer:
+                    type: 'object'
+                    properties:
+                      name:
+                        type: 'string'
+                      email:
+                        type: 'string'
+                    required:
+                      - 'name'
+                      - 'email'
+                  links:
+                    type: 'object'
+                    properties:
+                      self:
+                        type: 'string'
+                      jsonld:
+                        type: 'string'
+                      ttl:
+                        type: 'string'
+                      public:
+                        type: 'string'
+                      oauth:
+                        type: 'string'
+                    required:
+                      - 'self'
+                      - 'jsonld'
+                      - 'ttl'
+                      - 'public'
+                      - 'oauth'
+                required:
+                  - 'passportId'
+                  - 'product'
+                  - 'manufacturing'
+                  - 'commercial'
+                  - 'sustainability'
+                  - 'care'
+                  - 'status'
+                  - 'lifecycle'
+                  - 'consumer'
+                  - 'links'
+    post:
+      summary: 'Create resource'
+      description: 'Create a new resource'
+      parameters:
+        - in: path
+          name: gtin
+          required: true
+          schema: { type: string, example: '884993074531' }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: 'object'
+              properties:
+                passportId:
+                  type: 'string'
+                product:
+                  type: 'object'
+                  properties:
+                    name:
+                      type: 'string'
+                    title:
+                      type: 'object'
+                      properties:
+                        en:
+                          type: 'string'
+                        fr:
+                          type: 'string'
+                      required:
+                        - 'en'
+                        - 'fr'
+                    description:
+                      type: 'object'
+                      properties:
+                        en:
+                          type: 'string'
+                        fr:
+                          type: 'string'
+                      required:
+                        - 'en'
+                        - 'fr'
+                    brand:
+                      type: 'string'
+                    sku:
+                      type: 'string'
+                    gtin:
+                      type: 'string'
+                    digitalLink:
+                      type: 'string'
+                    granularityLevel:
+                      type: 'string'
+                    serialNumber:
+                      type: 'string'
+                    color:
+                      type: 'string'
+                    size:
+                      type: 'string'
+                  required:
+                    - 'name'
+                    - 'title'
+                    - 'description'
+                    - 'brand'
+                    - 'sku'
+                    - 'gtin'
+                    - 'digitalLink'
+                    - 'granularityLevel'
+                    - 'serialNumber'
+                    - 'color'
+                    - 'size'
+                manufacturing:
+                  type: 'object'
+                  properties:
+                    date:
+                      type: 'string'
+                    location:
+                      type: 'string'
+                    manufacturer:
+                      type: 'object'
+                      properties:
+                        name:
+                          type: 'string'
+                        url:
+                          type: 'string'
+                        gln:
+                          type: 'string'
+                        address:
+                          type: 'object'
+                          properties:
+                            locality:
+                              type: 'string'
+                            region:
+                              type: 'string'
+                            country:
+                              type: 'string'
+                          required:
+                            - 'locality'
+                            - 'region'
+                            - 'country'
+                      required:
+                        - 'name'
+                        - 'url'
+                        - 'gln'
+                        - 'address'
+                  required:
+                    - 'date'
+                    - 'location'
+                    - 'manufacturer'
+                commercial:
+                  type: 'object'
+                  properties:
+                    retailer:
+                      type: 'object'
+                      properties:
+                        name:
+                          type: 'string'
+                        url:
+                          type: 'string'
+                        gln:
+                          type: 'string'
+                      required:
+                        - 'name'
+                        - 'url'
+                        - 'gln'
+                    purchaseDate:
+                      type: 'string'
+                    purchasePrice:
+                      type: 'object'
+                      properties:
+                        amount:
+                          type: 'integer'
+                        currency:
+                          type: 'string'
+                      required:
+                        - 'amount'
+                        - 'currency'
+                    warranty:
+                      type: 'object'
+                      properties:
+                        type:
+                          type: 'string'
+                        status:
+                          type: 'string'
+                        startDate:
+                          type: 'string'
+                        endDate:
+                          type: 'string'
+                        durationMonths:
+                          type: 'integer'
+                      required:
+                        - 'type'
+                        - 'status'
+                        - 'startDate'
+                        - 'endDate'
+                        - 'durationMonths'
+                  required:
+                    - 'retailer'
+                    - 'purchaseDate'
+                    - 'purchasePrice'
+                    - 'warranty'
+                sustainability:
+                  type: 'object'
+                  properties:
+                    recyclingInstructions:
+                      type: 'object'
+                      properties:
+                        en:
+                          type: 'string'
+                        fr:
+                          type: 'string'
+                        url:
+                          type: 'string'
+                      required:
+                        - 'en'
+                        - 'fr'
+                        - 'url'
+                  required:
+                    - 'recyclingInstructions'
+                care:
+                  type: 'object'
+                  properties:
+                    document:
+                      type: 'object'
+                      properties:
+                        name:
+                          type: 'object'
+                          properties:
+                            en:
+                              type: 'string'
+                            fr:
+                              type: 'string'
+                          required:
+                            - 'en'
+                            - 'fr'
+                        description:
+                          type: 'object'
+                          properties:
+                            en:
+                              type: 'string'
+                            fr:
+                              type: 'string'
+                          required:
+                            - 'en'
+                            - 'fr'
+                        url:
+                          type: 'string'
+                      required:
+                        - 'name'
+                        - 'description'
+                        - 'url'
+                  required:
+                    - 'document'
+                status:
+                  type: 'object'
+                  properties:
+                    productStatus:
+                      type: 'string'
+                    date:
+                      type: 'string'
+                  required:
+                    - 'productStatus'
+                    - 'date'
+                lifecycle:
+                  type: 'object'
+                  properties:
+                    stageName:
+                      type: 'string'
+                    stageDate:
+                      type: 'string'
+                  required:
+                    - 'stageName'
+                    - 'stageDate'
+                consumer:
+                  type: 'object'
+                  properties:
+                    name:
+                      type: 'string'
+                    email:
+                      type: 'string'
+                  required:
+                    - 'name'
+                    - 'email'
+                links:
+                  type: 'object'
+                  properties:
+                    self:
+                      type: 'string'
+                    jsonld:
+                      type: 'string'
+                    ttl:
+                      type: 'string'
+                    public:
+                      type: 'string'
+                    oauth:
+                      type: 'string'
+                  required:
+                    - 'self'
+                    - 'jsonld'
+                    - 'ttl'
+                    - 'public'
+                    - 'oauth'
+              required:
+                - 'passportId'
+                - 'product'
+                - 'manufacturing'
+                - 'commercial'
+                - 'sustainability'
+                - 'care'
+                - 'status'
+                - 'lifecycle'
+                - 'consumer'
+                - 'links'
+      responses:
+        201:
+          description: 'Resource created'
+          content:
+            application/json:
+              schema:
+                type: 'object'
+                properties:
+                  passportId:
+                    type: 'string'
+                  product:
+                    type: 'object'
+                    properties:
+                      name:
+                        type: 'string'
+                      title:
+                        type: 'object'
+                        properties:
+                          en:
+                            type: 'string'
+                          fr:
+                            type: 'string'
+                        required:
+                          - 'en'
+                          - 'fr'
+                      description:
+                        type: 'object'
+                        properties:
+                          en:
+                            type: 'string'
+                          fr:
+                            type: 'string'
+                        required:
+                          - 'en'
+                          - 'fr'
+                      brand:
+                        type: 'string'
+                      sku:
+                        type: 'string'
+                      gtin:
+                        type: 'string'
+                      digitalLink:
+                        type: 'string'
+                      granularityLevel:
+                        type: 'string'
+                      serialNumber:
+                        type: 'string'
+                      color:
+                        type: 'string'
+                      size:
+                        type: 'string'
+                    required:
+                      - 'name'
+                      - 'title'
+                      - 'description'
+                      - 'brand'
+                      - 'sku'
+                      - 'gtin'
+                      - 'digitalLink'
+                      - 'granularityLevel'
+                      - 'serialNumber'
+                      - 'color'
+                      - 'size'
+                  manufacturing:
+                    type: 'object'
+                    properties:
+                      date:
+                        type: 'string'
+                      location:
+                        type: 'string'
+                      manufacturer:
+                        type: 'object'
+                        properties:
+                          name:
+                            type: 'string'
+                          url:
+                            type: 'string'
+                          gln:
+                            type: 'string'
+                          address:
+                            type: 'object'
+                            properties:
+                              locality:
+                                type: 'string'
+                              region:
+                                type: 'string'
+                              country:
+                                type: 'string'
+                            required:
+                              - 'locality'
+                              - 'region'
+                              - 'country'
+                        required:
+                          - 'name'
+                          - 'url'
+                          - 'gln'
+                          - 'address'
+                    required:
+                      - 'date'
+                      - 'location'
+                      - 'manufacturer'
+                  commercial:
+                    type: 'object'
+                    properties:
+                      retailer:
+                        type: 'object'
+                        properties:
+                          name:
+                            type: 'string'
+                          url:
+                            type: 'string'
+                          gln:
+                            type: 'string'
+                        required:
+                          - 'name'
+                          - 'url'
+                          - 'gln'
+                      purchaseDate:
+                        type: 'string'
+                      purchasePrice:
+                        type: 'object'
+                        properties:
+                          amount:
+                            type: 'integer'
+                          currency:
+                            type: 'string'
+                        required:
+                          - 'amount'
+                          - 'currency'
+                      warranty:
+                        type: 'object'
+                        properties:
+                          type:
+                            type: 'string'
+                          status:
+                            type: 'string'
+                          startDate:
+                            type: 'string'
+                          endDate:
+                            type: 'string'
+                          durationMonths:
+                            type: 'integer'
+                        required:
+                          - 'type'
+                          - 'status'
+                          - 'startDate'
+                          - 'endDate'
+                          - 'durationMonths'
+                    required:
+                      - 'retailer'
+                      - 'purchaseDate'
+                      - 'purchasePrice'
+                      - 'warranty'
+                  sustainability:
+                    type: 'object'
+                    properties:
+                      recyclingInstructions:
+                        type: 'object'
+                        properties:
+                          en:
+                            type: 'string'
+                          fr:
+                            type: 'string'
+                          url:
+                            type: 'string'
+                        required:
+                          - 'en'
+                          - 'fr'
+                          - 'url'
+                    required:
+                      - 'recyclingInstructions'
+                  care:
+                    type: 'object'
+                    properties:
+                      document:
+                        type: 'object'
+                        properties:
+                          name:
+                            type: 'object'
+                            properties:
+                              en:
+                                type: 'string'
+                              fr:
+                                type: 'string'
+                            required:
+                              - 'en'
+                              - 'fr'
+                          description:
+                            type: 'object'
+                            properties:
+                              en:
+                                type: 'string'
+                              fr:
+                                type: 'string'
+                            required:
+                              - 'en'
+                              - 'fr'
+                          url:
+                            type: 'string'
+                        required:
+                          - 'name'
+                          - 'description'
+                          - 'url'
+                    required:
+                      - 'document'
+                  status:
+                    type: 'object'
+                    properties:
+                      productStatus:
+                        type: 'string'
+                      date:
+                        type: 'string'
+                    required:
+                      - 'productStatus'
+                      - 'date'
+                  lifecycle:
+                    type: 'object'
+                    properties:
+                      stageName:
+                        type: 'string'
+                      stageDate:
+                        type: 'string'
+                    required:
+                      - 'stageName'
+                      - 'stageDate'
+                  consumer:
+                    type: 'object'
+                    properties:
+                      name:
+                        type: 'string'
+                      email:
+                        type: 'string'
+                    required:
+                      - 'name'
+                      - 'email'
+                  links:
+                    type: 'object'
+                    properties:
+                      self:
+                        type: 'string'
+                      jsonld:
+                        type: 'string'
+                      ttl:
+                        type: 'string'
+                      public:
+                        type: 'string'
+                      oauth:
+                        type: 'string'
+                    required:
+                      - 'self'
+                      - 'jsonld'
+                      - 'ttl'
+                      - 'public'
+                      - 'oauth'
+                required:
+                  - 'passportId'
+                  - 'product'
+                  - 'manufacturing'
+                  - 'commercial'
+                  - 'sustainability'
+                  - 'care'
+                  - 'status'
+                  - 'lifecycle'
+                  - 'consumer'
+                  - 'links'
