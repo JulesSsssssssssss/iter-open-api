@@ -2,17 +2,13 @@ services:
   swagger-ui:
     image: docker.swagger.io/swaggerapi/swagger-ui:latest
     container_name: iter_swagger_ui
-    ports:
-      - 80:8080
-
     environment:
       SWAGGER_JSON: /swagger-ui/specification.yml
-
     networks:
-      - internal_network
-
+      - public_network
     volumes:
       - ./docs/specification.yml:/swagger-ui/specification.yml
+
   open-dpp-api:
     build: .
     container_name: open_dpp_api
@@ -30,3 +26,5 @@ services:
 networks:
   internal_network:
     external: false
+  public_network:
+    external: true
