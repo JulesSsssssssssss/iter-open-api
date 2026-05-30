@@ -10,7 +10,7 @@ services:
       - ./docs/specification.yml:/swagger-ui/specification.yml
 
   open-dpp-api:
-    build: .
+    image: marguillat/iter-open-dpp-api
     container_name: open_dpp_api
     ports:
       - 7000:7000
