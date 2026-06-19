@@ -10,4 +10,7 @@ FROM alpine AS production
 COPY --from=base /app/open-dpp-api /iter/open-dpp-api
 
 EXPOSE 7000
-CMD [ "/iter/open-dpp-api" ]
+
+USER iter:iter
+
+ENTRYPOINT [ "/iter/open-dpp-api" ]
