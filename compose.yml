@@ -2,6 +2,9 @@ services:
   swagger-ui:
     image: docker.swagger.io/swaggerapi/swagger-ui:latest
     container_name: iter_swagger_ui
+    # depends_on:
+    #   open-dpp-api:
+    #     condition: service_healthy
     environment:
       SWAGGER_JSON: /swagger-ui/specification.yml
     networks:
@@ -10,21 +13,22 @@ services:
       - ./docs/specification.yml:/swagger-ui/specification.yml
 
   open-dpp-api:
-    image: marguillat/iter-open-dpp-api
+    image: ghcr.io/marguillat/iter-open-api
     container_name: open_dpp_api
     ports:
-      - 7000:7000
+      - 80:7000
     networks:
       - internal_network
-    healthcheck:
-      test: ['CMD', 'curl', 'http://127.0.0.1:7000/health']
-      interval: 10s
-      timeout: 5s
-      retries: 3
+      - public_network
+    # healthcheck:
+    #   test: ['CMD-SHELL', 'curl']
+    #   interval: 10s
+    #   timeout: 5s
+    #   retries: 3
 
 # Compose networks
 networks:
   internal_network:
-    external: false
+    driver: bridge
   public_network:
     external: true

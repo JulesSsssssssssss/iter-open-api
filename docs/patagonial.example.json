@@ -1,5 +1,12 @@
 {
 	"passportId": "https://verisav.fr/data/dpp-examples/patagonia-jacket#passport",
+	"passportType": "digital_product_passport",
+	"schemaContext": "EU DPP-inspired textile passport",
+	"access": {
+		"public": true,
+		"professional": true,
+		"authority": false
+	},
 	"product": {
 		"name": "Patagonia Better Sweater Jacket",
 		"title": {
@@ -18,6 +25,16 @@
 		"serialNumber": "PAT-2025-BSW-1234",
 		"color": "Black",
 		"size": "M"
+	},
+	"identifiers": {
+		"gtin": "884993074531",
+		"sku": "25515-MEN-M",
+		"serialNumber": "PAT-2025-BSW-1234",
+		"digitalLink": "https://www.patagonia.com/01/884993074531/21/PAT-2025-BSW-1234",
+		"carrier": {
+			"type": "uri/qr",
+			"resolvedUrl": "https://www.patagonia.com/01/884993074531/21/PAT-2025-BSW-1234"
+		}
 	},
 	"manufacturing": {
 		"date": "2025-08-20",
@@ -52,11 +69,47 @@
 			"durationMonths": 12
 		}
 	},
+	"materialComposition": {
+		"outer": [
+			{
+				"material": "recycled polyester",
+				"sharePercent": 100,
+				"role": "fleece shell"
+			}
+		],
+		"claims": ["100% recycled polyester"],
+		"substancesOfConcern": [],
+		"recycledContent": {
+			"totalSharePercent": 100,
+			"method": "recycled polyester feedstock"
+		}
+	},
+	"performance": {
+		"intendedUse": "Everyday outerwear / fleece jacket",
+		"careDurability": [
+			"wash cold",
+			"do not bleach",
+			"tumble dry low",
+			"do not iron"
+		],
+		"repairability": {
+			"status": "serviceable",
+			"notes": "Repairs may be supported through brand repair and resale channels"
+		}
+	},
 	"sustainability": {
 		"recyclingInstructions": {
 			"en": "Product made from 100% recycled polyester. Can be recycled through Patagonia Worn Wear program or textile recycling facilities.",
 			"fr": "Produit fabriqué à partir de 100% polyester recyclé. Peut être recyclé via le programme Patagonia Worn Wear ou les installations de recyclage textile.",
 			"url": "https://www.patagonia.com/worn-wear/"
+		},
+		"takeBack": {
+			"available": true,
+			"program": "Patagonia Worn Wear"
+		},
+		"endOfLife": {
+			"preferredRoute": "reuse or take-back",
+			"secondaryRoute": "textile recycling"
 		}
 	},
 	"care": {
@@ -72,17 +125,43 @@
 			"url": "https://www.patagonia.com/care-instructions/better-sweater"
 		}
 	},
+	"lifecycle": {
+		"stageName": "usage",
+		"stageDate": "2025-10-12",
+		"statusHistory": [
+			{
+				"status": "manufactured",
+				"date": "2025-08-20"
+			},
+			{
+				"status": "sold",
+				"date": "2025-10-12"
+			},
+			{
+				"status": "under_warranty",
+				"date": "2025-10-12"
+			}
+		]
+	},
 	"status": {
 		"productStatus": "sous_garantie",
 		"date": "2025-10-12"
 	},
-	"lifecycle": {
-		"stageName": "usage",
-		"stageDate": "2025-10-12"
-	},
 	"consumer": {
 		"name": "Sophie Leroy",
 		"email": "sophie.leroy@example.com"
+	},
+	"documentation": {
+		"publicDocuments": [
+			{
+				"type": "care",
+				"url": "https://www.patagonia.com/care-instructions/better-sweater"
+			},
+			{
+				"type": "recycling",
+				"url": "https://www.patagonia.com/worn-wear/"
+			}
+		]
 	},
 	"links": {
 		"self": "/api/dpp/patagonia-jacket",
