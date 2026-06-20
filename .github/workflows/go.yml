@@ -14,7 +14,7 @@ env:
 
 jobs:
   security:
-    name: Snyk Scan
+    name: Snyk Scan api
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
@@ -27,9 +27,36 @@ jobs:
         with:
           command: monitor
 
+  tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - name: Set up Go
+        uses: actions/setup-go@v6
+        with:
+          go-version: '1.26'
+
+      - name: Test
+        run: go test -v
+
+  quality:
+    name: Analyze code with SonarQube
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-go@v6
+        with:
+          go-version: '1.26'
+      - uses: SonarSource/sonarqube-scan-action@v8
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+
   build-and-push:
     runs-on: ubuntu-latest
-    needs: [security]
+    needs: [security, tests]
     permissions:
       contents: read
       packages: write
@@ -62,15 +89,3 @@ jobs:
           tags: ${{ env.registry }}/${{ env.IMAGE_REPOSITORY }}:latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
-
-  tests:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v6
-      - name: Set up Go
-        uses: actions/setup-go@v6
-        with:
-          go-version: '1.26'
-
-      - name: Test
-        run: go test -v
