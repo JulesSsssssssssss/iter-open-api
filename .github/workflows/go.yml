@@ -19,7 +19,7 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v6
-
+      - run: cd ./open-api
       - name: Run Security Checks
         uses: snyk/actions/golang@master
         env:
