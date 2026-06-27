@@ -36,11 +36,11 @@ jobs:
         with:
           go-version: '1.26'
 
-      - name: Test
-        run: go test -v
+      - name: Test open api
+        run: cd ./open-api && go test -v
 
   quality:
-    name: Analyze code with SonarQube
+    name: Analyze api code with SonarQube
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
@@ -82,7 +82,7 @@ jobs:
       - name: Build and Push Docker Image
         uses: docker/build-push-action@v7
         with:
-          context: .
+          context: ./open-api
           file: ./Dockerfile
           push: true
           platforms: linux/amd64 # ,linux/arm64 : build sur plusieurs plateformes prend un temps fou en GH-actions

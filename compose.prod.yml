@@ -7,18 +7,14 @@ services:
     #     condition: service_healthy
     environment:
       SWAGGER_JSON: /swagger-ui/specification.yml
-    ports:
-      - 81:8080
     networks:
       - public_network
     volumes:
       - ./open-api/docs/specification.yml:/swagger-ui/specification.yml
 
   open-dpp-api:
-    build: ./open-api
+    image: ghcr.io/marguillat/iter-open-api
     container_name: open_dpp_api
-    ports:
-      - 80:7000
     networks:
       - internal_network
       - public_network
