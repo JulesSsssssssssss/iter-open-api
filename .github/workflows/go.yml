@@ -83,7 +83,6 @@ jobs:
         uses: docker/build-push-action@v7
         with:
           context: ./open-api
-          file: ./Dockerfile
           push: true
           platforms: linux/amd64 # ,linux/arm64 : build sur plusieurs plateformes prend un temps fou en GH-actions
           tags: ${{ env.registry }}/${{ env.IMAGE_REPOSITORY }}:latest
