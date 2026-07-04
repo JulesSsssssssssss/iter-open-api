@@ -14,7 +14,7 @@ services:
       - ./open-api/docs/specification.yml:/swagger-ui/specification.yml
 
   open-dpp-api:
-    image: ghcr.io/julesssssssssss/iter-open-api:latest
+    image: ghcr.io/julesssssssssssss/iter-open-api:latest
     container_name: open_dpp_api
     restart: unless-stopped
     networks:
