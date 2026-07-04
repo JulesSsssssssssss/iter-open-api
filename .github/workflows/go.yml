@@ -13,6 +13,20 @@ env:
   image_name: ${{ github.repository }}
 
 jobs:
+  lint:
+    name: Lint api
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - name: Set up Go
+        uses: actions/setup-go@v6
+        with:
+          go-version: '1.26'
+      - name: golangci-lint
+        uses: golangci/golangci-lint-action@v6
+        with:
+          working-directory: open-api
+
   security:
     name: Snyk Scan api
     runs-on: ubuntu-latest
@@ -37,7 +51,7 @@ jobs:
           go-version: '1.26'
 
       - name: Test open api
-        run: cd ./open-api && go test -v
+        run: cd ./open-api && go vet ./... && go test -v ./...
 
   quality:
     name: Analyze api code with SonarQube
@@ -56,10 +70,12 @@ jobs:
 
   build-and-push:
     runs-on: ubuntu-latest
-    needs: [security, tests]
+    needs: [lint, security, tests]
     permissions:
       contents: read
       packages: write
+    outputs:
+      image_repository: ${{ steps.prepare.outputs.image_repository }}
     steps:
       - name: Get repo
         uses: actions/checkout@v6
@@ -74,10 +90,10 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: PrepareReg Names # Pour virer les majuscule de con
+      - name: Prepare image repository name # Pour virer les majuscule de con
+        id: prepare
         run: |
-          echo IMAGE_REPOSITORY=$(echo ${{ github.repository }} | tr '[:upper:]' '[:lower:]') >> $GITHUB_ENV
-          echo IMAGE_TAG=$(echo ${{ github.ref }} | tr '[:upper:]' '[:lower:]' | awk '{split($0,a,"/"); print a[3]}') >> $GITHUB_ENV
+          echo "image_repository=$(echo ${{ github.repository }} | tr '[:upper:]' '[:lower:]')" >> "$GITHUB_OUTPUT"
 
       - name: Build and Push Docker Image
         uses: docker/build-push-action@v7
@@ -85,6 +101,78 @@ jobs:
           context: ./open-api
           push: true
           platforms: linux/amd64 # ,linux/arm64 : build sur plusieurs plateformes prend un temps fou en GH-actions
-          tags: ${{ env.registry }}/${{ env.IMAGE_REPOSITORY }}:latest
+          tags: |
+            ${{ env.registry }}/${{ steps.prepare.outputs.image_repository }}:latest
+            ${{ env.registry }}/${{ steps.prepare.outputs.image_repository }}:${{ github.sha }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+
+  trivy-scan:
+    name: Scan image with Trivy
+    runs-on: ubuntu-latest
+    needs: build-and-push
+    permissions:
+      contents: read
+      packages: read
+    steps:
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v4
+        with:
+          registry: ${{ env.registry }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@0.28.0
+        with:
+          image-ref: ${{ env.registry }}/${{ needs.build-and-push.outputs.image_repository }}:${{ github.sha }}
+          format: table
+          severity: CRITICAL
+          exit-code: '1'
+
+  deploy:
+    name: Deploy to VPS
+    runs-on: ubuntu-latest
+    needs: trivy-scan
+    if: github.ref == 'refs/heads/main'
+    environment: production
+    permissions:
+      contents: read
+      packages: read
+    steps:
+      - name: Get repo
+        uses: actions/checkout@v6
+
+      - name: Ensure deploy directory exists
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: ${{ secrets.SSH_PORT }}
+          script: mkdir -p ~/iter-open-api
+
+      - name: Copy compose.prod.yml to VPS
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: ${{ secrets.SSH_PORT }}
+          source: 'compose.prod.yml'
+          target: '~/iter-open-api'
+
+      - name: Pull image and restart stack
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: ${{ secrets.SSH_PORT }}
+          script: |
+            cd ~/iter-open-api
+            echo "${{ secrets.GITHUB_TOKEN }}" | docker login ${{ env.registry }} -u ${{ github.actor }} --password-stdin
+            docker compose -f compose.prod.yml pull
+            docker compose -f compose.prod.yml up -d
+            docker logout ${{ env.registry }}
+            docker image prune -f

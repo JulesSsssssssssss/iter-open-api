@@ -10,8 +10,7 @@ import (
 	"github.com/gofiber/fiber/v3/middleware/logger"
 )
 
-func main() {
-	// Initialize default config
+func setupApp() *fiber.App {
 	app := fiber.New()
 	app.Use(logger.New())
 
@@ -26,6 +25,12 @@ func main() {
 			"version": "1.0.0",
 		})
 	})
+
+	return app
+}
+
+func main() {
+	app := setupApp()
 
 	// Démarrer le serveur sur le port 7000
 	port := 7000

@@ -30,16 +30,17 @@ services:
     image: postgres:18
     restart: unless-stopped
     container_name: open_dpp_db
+    env_file:
+      - .env
     environment:
-      POSTGRES_USER: user-iter-open
-      POSTGRES_PASSWORD: ***REMOVED-LEAKED-SECRET***
-      POSTGRES_DB: db-iter-open
       DB_ENV: dev
+    networks:
+      - internal_network
     volumes:
       - ./db/init:/docker-entrypoint-initdb.d
       - open_dpp_pg:/var/lib/postgresql
     healthcheck:
-      test: ['CMD-SHELL', 'pg_isready -U user-iter-open -d db-iter-open']
+      test: ['CMD-SHELL', 'pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB']
       interval: 5s
       timeout: 5s
       retries: 5

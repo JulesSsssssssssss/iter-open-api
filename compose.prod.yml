@@ -2,9 +2,10 @@ services:
   swagger-ui:
     image: docker.swagger.io/swaggerapi/swagger-ui:latest
     container_name: iter_swagger_ui
-    # depends_on:
-    #   open-dpp-api:
-    #     condition: service_healthy
+    restart: unless-stopped
+    depends_on:
+      open-dpp-api:
+        condition: service_healthy
     environment:
       SWAGGER_JSON: /swagger-ui/specification.yml
     networks:
@@ -13,16 +14,17 @@ services:
       - ./open-api/docs/specification.yml:/swagger-ui/specification.yml
 
   open-dpp-api:
-    image: ghcr.io/marguillat/iter-open-api
+    image: ghcr.io/julesssssssssss/iter-open-api:latest
     container_name: open_dpp_api
+    restart: unless-stopped
     networks:
       - internal_network
       - public_network
-    # healthcheck:
-    #   test: ['CMD-SHELL', 'curl']
-    #   interval: 10s
-    #   timeout: 5s
-    #   retries: 3
+    healthcheck:
+      test: ['CMD-SHELL', 'wget -qO- http://localhost:7000/health || exit 1']
+      interval: 10s
+      timeout: 5s
+      retries: 3
 
 # Compose networks
 networks:
