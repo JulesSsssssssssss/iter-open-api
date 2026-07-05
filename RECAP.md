@@ -62,7 +62,21 @@
 - **Validé en conditions réelles** : après redéploiement de l'API (pipeline CI/CD) et redémarrage d'Alloy, le composant `prometheus.scrape.open_dpp_api` de l'API de debug d'Alloy (`:12345/api/v0/web/components`) est passé de `health: down` (l'ancien `/metrics` renvoyait du JSON, imparsable par Alloy) à `health: up`.
 - Dashboard Grafana livré en JSON prêt à importer : [`observability/dashboard-vps.json`](observability/dashboard-vps.json) — reprend les panneaux CPU/RAM/réseau/disque par conteneur du TP (variable `$container`, cartouches de synthèse) et ajoute une section API (requêtes/s par route et code HTTP, latence p50/p95/p99, taux d'erreurs 5xx, CPU/RAM/goroutines du process). À l'import, Grafana demande de mapper la datasource `${DS_PROMETHEUS}` vers le Prometheus Grafana Cloud existant.
 
-## Ce qu'il reste (axe 5, + bonus axe 3)
+## Axe 5 — Documentation & ADR
 
-- **Axe 5 — Documentation & ADR** : pas commencé. Le README racine est vide, aucun ADR, aucun runbook.
+**Fait, aligné sur la grille d'évaluation du module (README exhaustif, ADR, runbooks) :**
+
+- [`README.md`](README.md) racine réécrit : description du projet, schéma d'architecture Mermaid, procédure de lancement local pas à pas, procédure de déploiement complète (pipeline + premier déploiement manuel + rollback), guide de contribution (lint/tests/conventions de commit), tableau des variables d'environnement, liens vers les ressources externes (API/Swagger/SonarQube en prod, dashboard Grafana Cloud, package GHCR).
+- 4 ADR dans [`docs/adr/`](docs/adr/), format Contexte / Décision / Conséquences (+/-) :
+  1. [Segmentation réseau Docker](docs/adr/0001-segmentation-reseau-docker.md)
+  2. [Hardening port admin NPM](docs/adr/0002-hardening-npm-port-admin.md)
+  3. [Versions pinnées et scan bloquant en CI/CD](docs/adr/0003-pipeline-cicd-versions-pinnees.md)
+  4. [Observabilité Prometheus + Alloy](docs/adr/0004-observabilite-prometheus-alloy.md)
+- 3 runbooks dans [`docs/runbooks/`](docs/runbooks/), format Détection / Diagnostic / Mitigation :
+  1. [API down](docs/runbooks/api-down.md)
+  2. [Pipeline CI/CD en échec](docs/runbooks/pipeline-echec.md)
+  3. [Port exposé publiquement par erreur](docs/runbooks/port-expose.md)
+
+## Ce qu'il reste (bonus axe 3)
+
 - **Bonus axe 3** : audit Mozilla Observatory, CSP header, rotation des secrets documentée, backup off-site.
