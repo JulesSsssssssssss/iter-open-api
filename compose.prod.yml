@@ -1,6 +1,12 @@
+x-logging: &default-logging
+  driver: json-file
+  options:
+    max-size: '10m'
+    max-file: '3'
+
 services:
   swagger-ui:
-    image: docker.swagger.io/swaggerapi/swagger-ui:latest
+    image: docker.swagger.io/swaggerapi/swagger-ui:v5.32.8
     container_name: iter_swagger_ui
     restart: unless-stopped
     depends_on:
@@ -12,6 +18,12 @@ services:
       - public_network
     volumes:
       - ./open-api/docs/specification.yml:/swagger-ui/specification.yml
+    healthcheck:
+      test: ['CMD-SHELL', 'wget -qO- http://127.0.0.1:8080/ || exit 1']
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    logging: *default-logging
 
   open-dpp-api:
     image: ghcr.io/julesssssssssssss/iter-open-api:latest
@@ -25,6 +37,7 @@ services:
       interval: 10s
       timeout: 5s
       retries: 3
+    logging: *default-logging
 
 # Compose networks
 networks:

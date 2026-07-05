@@ -22,13 +22,15 @@ documentation dédiées.
 - [Variables d'environnement](#variables-denvironnement)
 - [Sécurité](#sécurité)
 - [Observabilité](#observabilité)
+- [Limites connues](#limites-connues)
 - [Documentation complémentaire](#documentation-complémentaire)
 
 ## Architecture
 
-Trois conteneurs applicatifs (`compose.yml` / `compose.prod.yml`), un pipeline
-CI/CD GitHub Actions, et une stack d'observabilité VPS partagée avec d'autres
-projets.
+Un pipeline CI/CD GitHub Actions, une stack d'observabilité VPS partagée avec
+d'autres projets, et deux topologies Compose différentes en local et en
+production (voir [Limites connues](#limites-connues) pour le détail de cet
+écart, assumé et documenté plutôt que caché).
 
 ```mermaid
 flowchart LR
@@ -43,14 +45,10 @@ flowchart LR
             API["open-dpp-api<br/>:7000"]
             Swagger["swagger-ui<br/>:8080"]
         end
-        subgraph InternalNet["internal_network"]
-            DB[("open-dpp-db<br/>PostgreSQL")]
-        end
         subgraph GrafanaStack["stack grafana (partagée)"]
             Alloy["Grafana Alloy"]
             CAdvisor["cAdvisor"]
         end
-        API --- DB
         NPM --> API
         NPM --> Swagger
         Alloy -->|scrape /metrics| API
@@ -62,8 +60,13 @@ flowchart LR
     Alloy -->|remote_write| GrafanaCloud["Grafana Cloud"]
 ```
 
-- **`internal_network`** : la base PostgreSQL n'est joignable que par l'API.
-  Voir [ADR 001](docs/adr/0001-segmentation-reseau-docker.md).
+- **En local** (`compose.yml`), la stack inclut une base PostgreSQL
+  (`open-dpp-db`) isolée sur `internal_network`, non joignable depuis
+  l'extérieur — voir [ADR 001](docs/adr/0001-segmentation-reseau-docker.md).
+- **En production** (`compose.prod.yml`, diagramme ci-dessus), il n'y a
+  volontairement **pas de service DB** : l'API ne s'y connecte pas encore
+  (voir [Limites connues](#limites-connues)), donc rien n'est déployé pour
+  l'instant plutôt que de faire tourner une base inutilisée en prod.
 - **`public_network`** : partagé entre l'API, Swagger UI, Nginx Proxy Manager,
   et Grafana Alloy (pour le scrape des métriques applicatives).
 - Le VPS héberge aussi d'autres projets (Vaultwarden, portfolio, SonarQube)
@@ -188,6 +191,37 @@ En CI/CD, les secrets sont gérés côté GitHub Actions (voir
   remontées vers Grafana Cloud.
 - Dashboard prêt à l'emploi : [`observability/dashboard-vps.json`](observability/dashboard-vps.json)
   (CPU/RAM/réseau/disque par conteneur + requêtes/latence/erreurs de l'API).
+- 3 alertes (service down, taux d'erreur élevé, disque plein) documentées et
+  prêtes à créer dans Grafana Cloud : [`docs/alerting.md`](docs/alerting.md).
+
+## Limites connues
+
+Documentées volontairement plutôt que masquées :
+
+- **La base PostgreSQL n'est pas encore branchée à l'API.** Le code Go
+  (`open-api/main.go`) ne contient aujourd'hui aucun accès SQL ; `open-dpp-db`
+  n'existe qu'en local (`compose.yml`) pour préparer le terrain, et n'est pas
+  déployée en production. Conséquence directe : pas de tests d'intégration
+  Postgres en CI tant que l'API ne s'en sert pas réellement.
+- **Un secret a historiquement fuité dans l'historique git** (mot de passe
+  PostgreSQL local, jamais utilisé en production). L'historique a été
+  entièrement réécrit (`git filter-repo`) pour le purger avant de rendre ce
+  dépôt public — vérifié sur un clone frais avant publication.
+- **Pas de build multi-arch** (`amd64` uniquement) : un build `arm64`
+  supplémentaire ralentissait sensiblement le pipeline CI pour un bénéfice nul
+  ici (déploiement sur un VPS `amd64`).
+- **Pas de tag sémantique** sur les images GHCR (seulement `latest` +
+  `${{ github.sha }}`) : suffisant pour tracer et rollback (voir
+  [Rollback](#rollback)), mais pas de versionnage sémantique explicite.
+- **Alertes documentées mais pas encore créées** dans Grafana Cloud (aucune
+  API d'alerting disponible avec le token actuel, scope écriture seule) :
+  voir [`docs/alerting.md`](docs/alerting.md) pour la procédure de création
+  manuelle (~5 min).
+- **Pas de CSP, d'audit Mozilla Observatory, de rotation automatique des
+  secrets, ni de backup off-site** — périmètre bonus non traité.
+- **Tout le développement s'est fait directement sur `main`**, sans branches
+  ni pull requests (projet individuel, itérations rapides) — un vrai travail
+  d'équipe adopterait un flux de PR avec review.
 
 ## Documentation complémentaire
 

@@ -77,6 +77,52 @@
   2. [Pipeline CI/CD en échec](docs/runbooks/pipeline-echec.md)
   3. [Port exposé publiquement par erreur](docs/runbooks/port-expose.md)
 
+## Audit final contre la grille d'évaluation officielle du module
+
+Un audit complet en conditions réelles contre la grille de notation
+(Dockerfiles/Compose 25%, CI/CD 25%, Sécurité 20%, Observabilité 15%,
+Documentation 15%) a fait remonter plusieurs écarts, tous corrigés ou
+documentés explicitement plutôt que laissés silencieux :
+
+**Bugs trouvés et corrigés :**
+- **Headers de sécurité jamais réellement servis.** Le RECAP affirmait
+  X-Frame-Options/X-Content-Type-Options/Referrer-Policy actifs sur
+  `api.jules.*` et `swagger.jules.*`, mais un test en direct (`curl -sv`) a
+  montré que seul `strict-transport-security` sortait vraiment. Cause : ces
+  `add_header` étaient déclarés au niveau `server{}` dans la config nginx
+  générée par NPM, mais le bloc `location / {}` (qui sert toutes les vraies
+  requêtes) définissait son propre `add_header` pour le HSTS — en nginx, dès
+  qu'un bloc définit un `add_header`, il n'hérite plus de ceux du niveau
+  parent. Fix : dupliqué les 3 `add_header` directement dans `location / {}`
+  de `/data/nginx/proxy_host/6.conf` et `7.conf`, validé par `nginx -t` puis
+  reload, revérifié par `curl` que les 4 headers sortent bien.
+- **Healthchecks manquants** sur `swagger-ui` (dev + prod) et sur
+  `open-dpp-api` en dev — ajoutés (`wget` sur l'endpoint de chaque service).
+- **`restart: unless-stopped` absent** sur `open-dpp-api`/`swagger-ui` en dev
+  — ajouté partout.
+- **Images non pinnées** : `swagger-ui:latest` → `swagger-ui:v5.32.8` dans les
+  deux compose files.
+- **Logs sans rotation** (`json-file` par défaut, taille illimitée) — ajout
+  d'un ancrage YAML `x-logging` (`max-size: 10m`, `max-file: 3`) appliqué à
+  tous les services, dev et prod.
+- **Secret historique dans l'historique git** (`git log -p` révélait un mot
+  de passe PostgreSQL local jamais utilisé en prod) — purgé de tout
+  l'historique avec `git-filter-repo`, vérifié à 0 occurrence sur un clone
+  frais avant de rendre le dépôt public (`gh repo edit --visibility public`).
+
+**Écarts documentés (non corrigés, assumés explicitement — voir
+[Limites connues](README.md#limites-connues) du README)** : DB non branchée à
+l'API et absente de la prod, pas de build multi-arch, pas de tag sémantique,
+alertes Grafana documentées mais pas encore créées (nécessite une action
+manuelle en UI, pas d'API disponible avec le token actuel), pas de CSP ni
+d'audit Mozilla Observatory, pas de rotation automatique des secrets ni de
+backup off-site, tout le développement fait directement sur `main` sans
+PR/review.
+
+**Ajouté :** [`docs/alerting.md`](docs/alerting.md) — 3 alertes actionnables
+(service down, taux d'erreur 5xx élevé, disque plein) avec requête PromQL,
+seuil et procédure de création exacts.
+
 ## Ce qu'il reste (bonus axe 3)
 
 - **Bonus axe 3** : audit Mozilla Observatory, CSP header, rotation des secrets documentée, backup off-site.
