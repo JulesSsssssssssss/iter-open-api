@@ -59,7 +59,7 @@ func setupApp() *fiber.App {
 		return c.JSON(fiber.Map{
 			"status":  "ok",
 			"message": "Welcome to the open ITER dpp API",
-			"version": "1.0.0",
+			"version": "1.0.1",
 		})
 	})
 
